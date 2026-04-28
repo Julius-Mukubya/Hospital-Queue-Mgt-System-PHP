@@ -25,12 +25,12 @@ if (!isset($_GET['page'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard - Medical System</title>
+    <title>Dashboard - Hospital Queue Management System</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="header">
-        <h1>Medical System</h1>
+        <h1>Hospital Queue Management System</h1>
         <div class="user-info">
             <a href="#" onclick="showLogoutModal(); return false;">Logout</a>
         </div>

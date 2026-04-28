@@ -32,12 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login - Medical System</title>
+    <title>Login - Hospital Queue Management System</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="login-container">
-        <h2>Medical System Login</h2>
+        <h2>Hospital Queue Management System</h2>
         <?php if (isset($error)): ?>
             <div class="error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
