@@ -1,13 +1,13 @@
 <?php
 // Fetch statistics
-$totalPatients = $pdo->query("SELECT COUNT(*) FROM patients")->fetchColumn();
-$todayPatients = $pdo->query("SELECT COUNT(*) FROM patients WHERE DATE(created_at) = CURDATE()")->fetchColumn();
-$totalUsers = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$confirmedPatients = $pdo->query("SELECT COUNT(*) FROM patients WHERE status = 'confirmed'")->fetchColumn();
+$totalPatients = $conn->query("SELECT COUNT(*) FROM patients")->fetch_row()[0];
+$todayPatients = $conn->query("SELECT COUNT(*) FROM patients WHERE DATE(created_at) = CURDATE()")->fetch_row()[0];
+$totalUsers = $conn->query("SELECT COUNT(*) FROM users")->fetch_row()[0];
+$confirmedPatients = $conn->query("SELECT COUNT(*) FROM patients WHERE status = 'confirmed'")->fetch_row()[0];
 
 // Fetch recent patients
-$stmt = $pdo->query("SELECT * FROM patients ORDER BY created_at DESC LIMIT 10");
-$recentPatients = $stmt->fetchAll();
+$result = $conn->query("SELECT * FROM patients ORDER BY created_at DESC LIMIT 10");
+$recentPatients = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <div class="admin-section">

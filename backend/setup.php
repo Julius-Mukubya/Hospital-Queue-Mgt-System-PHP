@@ -6,18 +6,21 @@ $password = '';
 
 try {
     // Connect without database
-    $pdo = new PDO("mysql:host=$host", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn = new mysqli($host, $username, $password);
+    
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
     
     // Create database
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS medical_system");
+    $conn->query("CREATE DATABASE IF NOT EXISTS medical_system");
     echo "Database 'medical_system' created successfully!<br>";
     
-    // Use the database
-    $pdo->exec("USE medical_system");
+    // Select the database
+    $conn->select_db("medical_system");
     
     // Create users table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+    $conn->query("CREATE TABLE IF NOT EXISTS users (
         id INT PRIMARY KEY AUTO_INCREMENT,
         username VARCHAR(50) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
@@ -27,7 +30,7 @@ try {
     echo "Table 'users' created successfully!<br>";
     
     // Create patients table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS patients (
+    $conn->query("CREATE TABLE IF NOT EXISTS patients (
         id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(100) NOT NULL,
         age INT NOT NULL,
@@ -44,18 +47,34 @@ try {
     $hashedPassword = password_hash('password123', PASSWORD_DEFAULT);
     
     // Delete existing users first
-    $pdo->exec("DELETE FROM users WHERE username IN ('admin', 'receptionist', 'doctor')");
+    $conn->query("DELETE FROM users WHERE username IN ('admin', 'receptionist', 'doctor')");
     
-    $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
-    $stmt->execute(['admin', $hashedPassword, 'admin']);
-    $stmt->execute(['receptionist', $hashedPassword, 'receptionist']);
-    $stmt->execute(['doctor', $hashedPassword, 'doctor']);
+    $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+    
+    $username = 'admin';
+    $role = 'admin';
+    $stmt->bind_param("sss", $username, $hashedPassword, $role);
+    $stmt->execute();
+    
+    $username = 'receptionist';
+    $role = 'receptionist';
+    $stmt->bind_param("sss", $username, $hashedPassword, $role);
+    $stmt->execute();
+    
+    $username = 'doctor';
+    $role = 'doctor';
+    $stmt->bind_param("sss", $username, $hashedPassword, $role);
+    $stmt->execute();
+    
+    $stmt->close();
     echo "Default users created successfully!<br>";
     
     echo "<br><strong>Setup completed successfully!</strong><br>";
-    echo "<a href='index.php'>Go to Login Page</a>";
+    echo "<a href='../frontend/index.php'>Go to Login Page</a>";
     
-} catch (PDOException $e) {
+    $conn->close();
+    
+} catch (Exception $e) {
     die("Setup failed: " . $e->getMessage());
 }
 ?>

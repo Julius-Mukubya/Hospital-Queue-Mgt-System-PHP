@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'config.php';
+require_once '../backend/config.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: index.php');
@@ -26,7 +26,7 @@ if (!isset($_GET['page'])) {
 <html>
 <head>
     <title>Dashboard - Medical System</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="header">
@@ -58,26 +58,26 @@ if (!isset($_GET['page'])) {
         
         <div class="main-content">
             <?php if ($page === 'profile'): ?>
-                <?php include 'profile.php'; ?>
+                <?php include 'pages/profile.php'; ?>
             <?php elseif ($role === 'receptionist'): ?>
                 <?php if ($page === 'register'): ?>
-                    <?php include 'receptionist_dashboard.php'; ?>
+                    <?php include 'pages/receptionist_dashboard.php'; ?>
                 <?php elseif ($page === 'patients'): ?>
-                    <?php include 'view_patients.php'; ?>
+                    <?php include 'pages/view_patients.php'; ?>
                 <?php endif; ?>
             <?php elseif ($role === 'doctor'): ?>
                 <?php if ($page === 'consultations'): ?>
-                    <?php include 'doctor_dashboard.php'; ?>
+                    <?php include 'pages/doctor_dashboard.php'; ?>
                 <?php elseif ($page === 'patients'): ?>
-                    <?php include 'doctor_patients.php'; ?>
+                    <?php include 'pages/doctor_patients.php'; ?>
                 <?php endif; ?>
             <?php elseif ($role === 'admin'): ?>
                 <?php if ($page === 'dashboard'): ?>
-                    <?php include 'admin_dashboard.php'; ?>
+                    <?php include 'pages/admin_dashboard.php'; ?>
                 <?php elseif ($page === 'users'): ?>
-                    <?php include 'admin_users.php'; ?>
+                    <?php include 'pages/admin_users.php'; ?>
                 <?php elseif ($page === 'reports'): ?>
-                    <?php include 'admin_reports.php'; ?>
+                    <?php include 'pages/admin_reports.php'; ?>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
@@ -90,7 +90,7 @@ if (!isset($_GET['page'])) {
             <p>Are you sure you want to logout?</p>
             <div class="modal-buttons">
                 <button onclick="hideLogoutModal()" class="btn-cancel-modal">Cancel</button>
-                <a href="logout.php" class="btn-logout-modal">Logout</a>
+                <a href="../backend/logout.php" class="btn-logout-modal">Logout</a>
             </div>
         </div>
     </div>

@@ -1,8 +1,12 @@
 <?php
 // Fetch user information
-$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$user = $stmt->fetch();
+$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+$userId = $_SESSION['user_id'];
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
 
 // Handle password change
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
@@ -13,9 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     if (password_verify($currentPassword, $user['password'])) {
         if ($newPassword === $confirmPassword) {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-            $stmt->execute([$hashedPassword, $_SESSION['user_id']]);
+            $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $stmt->bind_param("si", $hashedPassword, $_SESSION['user_id']);
+            $stmt->execute();
+            $stmt->close();
             $success = "Password changed successfully!";
+            
+            // Refresh user data
+            $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt->bind_param("i", $_SESSION['user_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            $stmt->close();
         } else {
             $error = "New passwords do not match!";
         }

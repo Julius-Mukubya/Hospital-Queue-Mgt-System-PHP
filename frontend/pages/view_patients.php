@@ -1,9 +1,11 @@
 <?php
 // Handle confirm action
 if (isset($_GET['confirm'])) {
-    $patientId = $_GET['confirm'];
-    $stmt = $pdo->prepare("UPDATE patients SET status = 'confirmed' WHERE id = ?");
-    $stmt->execute([$patientId]);
+    $patientId = intval($_GET['confirm']);
+    $stmt = $conn->prepare("UPDATE patients SET status = 'confirmed' WHERE id = ?");
+    $stmt->bind_param("i", $patientId);
+    $stmt->execute();
+    $stmt->close();
     
     header('Location: ?page=patients&filter=' . ($_GET['filter'] ?? 'all'));
     exit;
@@ -11,9 +13,11 @@ if (isset($_GET['confirm'])) {
 
 // Handle cancel action
 if (isset($_GET['cancel'])) {
-    $patientId = $_GET['cancel'];
-    $stmt = $pdo->prepare("UPDATE patients SET status = 'cancelled' WHERE id = ?");
-    $stmt->execute([$patientId]);
+    $patientId = intval($_GET['cancel']);
+    $stmt = $conn->prepare("UPDATE patients SET status = 'cancelled' WHERE id = ?");
+    $stmt->bind_param("i", $patientId);
+    $stmt->execute();
+    $stmt->close();
     
     header('Location: ?page=patients&filter=' . ($_GET['filter'] ?? 'all'));
     exit;
@@ -23,12 +27,12 @@ if (isset($_GET['cancel'])) {
 $filter = $_GET['filter'] ?? 'all';
 
 if ($filter === 'today') {
-    $stmt = $pdo->query("SELECT * FROM patients WHERE DATE(created_at) = CURDATE() ORDER BY created_at DESC");
+    $result = $conn->query("SELECT * FROM patients WHERE DATE(created_at) = CURDATE() ORDER BY created_at DESC");
 } else {
-    $stmt = $pdo->query("SELECT * FROM patients ORDER BY created_at DESC");
+    $result = $conn->query("SELECT * FROM patients ORDER BY created_at DESC");
 }
 
-$patients = $stmt->fetchAll();
+$patients = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <div class="patients-view">

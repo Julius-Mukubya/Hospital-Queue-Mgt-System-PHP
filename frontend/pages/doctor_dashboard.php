@@ -1,19 +1,21 @@
 <?php
 // Fetch confirmed patients (ready for consultation)
-$stmt = $pdo->query("SELECT * FROM patients WHERE status = 'confirmed' ORDER BY created_at ASC");
-$confirmedPatients = $stmt->fetchAll();
+$result = $conn->query("SELECT * FROM patients WHERE status = 'confirmed' ORDER BY created_at ASC");
+$confirmedPatients = $result->fetch_all(MYSQLI_ASSOC);
 
 // Fetch today's consultations
-$stmt = $pdo->query("SELECT * FROM patients WHERE DATE(created_at) = CURDATE() ORDER BY created_at DESC");
-$todayPatients = $stmt->fetchAll();
+$result = $conn->query("SELECT * FROM patients WHERE DATE(created_at) = CURDATE() ORDER BY created_at DESC");
+$todayPatients = $result->fetch_all(MYSQLI_ASSOC);
 
 // Update patient status
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
-    $patientId = $_POST['patient_id'];
-    $newStatus = $_POST['status'];
+    $patientId = intval($_POST['patient_id']);
+    $newStatus = $conn->real_escape_string($_POST['status']);
     
-    $stmt = $pdo->prepare("UPDATE patients SET status = ? WHERE id = ?");
-    $stmt->execute([$newStatus, $patientId]);
+    $stmt = $conn->prepare("UPDATE patients SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $newStatus, $patientId);
+    $stmt->execute();
+    $stmt->close();
     
     header('Location: ?page=consultations');
     exit;

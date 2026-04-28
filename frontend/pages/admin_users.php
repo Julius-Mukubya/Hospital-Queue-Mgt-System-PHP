@@ -1,29 +1,33 @@
 <?php
 // Handle user creation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
-    $username = $_POST['username'];
+    $username = $conn->real_escape_string($_POST['username']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $role = $_POST['role'];
+    $role = $conn->real_escape_string($_POST['role']);
     
-    $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
-    $stmt->execute([$username, $password, $role]);
+    $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $username, $password, $role);
+    $stmt->execute();
+    $stmt->close();
     
     $success = "User created successfully!";
 }
 
 // Handle user deletion
 if (isset($_GET['delete'])) {
-    $userId = $_GET['delete'];
-    $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-    $stmt->execute([$userId]);
+    $userId = intval($_GET['delete']);
+    $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $stmt->close();
     
     header('Location: ?page=users');
     exit;
 }
 
 // Fetch all users
-$stmt = $pdo->query("SELECT * FROM users ORDER BY created_at DESC");
-$users = $stmt->fetchAll();
+$result = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
+$users = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <div class="admin-users">

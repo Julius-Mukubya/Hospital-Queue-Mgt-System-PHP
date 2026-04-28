@@ -1,18 +1,20 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_patient'])) {
-    $name = $_POST['name'] ?? '';
-    $age = $_POST['age'] ?? '';
-    $gender = $_POST['gender'] ?? '';
-    $contact = $_POST['contact'] ?? '';
-    $symptoms = $_POST['symptoms'] ?? '';
+    $name = $conn->real_escape_string($_POST['name'] ?? '');
+    $age = intval($_POST['age'] ?? 0);
+    $gender = $conn->real_escape_string($_POST['gender'] ?? '');
+    $contact = $conn->real_escape_string($_POST['contact'] ?? '');
+    $symptoms = $conn->real_escape_string($_POST['symptoms'] ?? '');
     
-    $stmt = $pdo->prepare("INSERT INTO patients (name, age, gender, contact, symptoms, visit_type, status, created_at) VALUES (?, ?, ?, ?, ?, 'walk-in', 'waiting', NOW())");
-    $stmt->execute([$name, $age, $gender, $contact, $symptoms]);
+    $stmt = $conn->prepare("INSERT INTO patients (name, age, gender, contact, symptoms, visit_type, status, created_at) VALUES (?, ?, ?, ?, ?, 'walk-in', 'waiting', NOW())");
+    $stmt->bind_param("sisss", $name, $age, $gender, $contact, $symptoms);
+    $stmt->execute();
+    $stmt->close();
     $success = "Patient registered successfully!";
 }
 
-$stmt = $pdo->query("SELECT * FROM patients WHERE DATE(created_at) = CURDATE() ORDER BY created_at DESC");
-$patients = $stmt->fetchAll();
+$result = $conn->query("SELECT * FROM patients WHERE DATE(created_at) = CURDATE() ORDER BY created_at DESC");
+$patients = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <div class="receptionist-section">

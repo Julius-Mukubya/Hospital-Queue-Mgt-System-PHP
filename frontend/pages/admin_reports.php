@@ -1,6 +1,6 @@
 <?php
 // Fetch statistics by date
-$stmt = $pdo->query("
+$result = $conn->query("
     SELECT 
         DATE(created_at) as date,
         COUNT(*) as total,
@@ -10,15 +10,15 @@ $stmt = $pdo->query("
     ORDER BY date DESC 
     LIMIT 7
 ");
-$dailyStats = $stmt->fetchAll();
+$dailyStats = $result->fetch_all(MYSQLI_ASSOC);
 
 // Fetch statistics by status
-$stmt = $pdo->query("
+$result = $conn->query("
     SELECT status, COUNT(*) as count 
     FROM patients 
     GROUP BY status
 ");
-$statusStats = $stmt->fetchAll();
+$statusStats = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <div class="admin-reports">

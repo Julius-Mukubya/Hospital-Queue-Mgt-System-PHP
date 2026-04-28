@@ -1,7 +1,7 @@
 <?php
 // Fetch all patients
-$stmt = $pdo->query("SELECT * FROM patients ORDER BY created_at DESC");
-$allPatients = $stmt->fetchAll();
+$result = $conn->query("SELECT * FROM patients ORDER BY created_at DESC");
+$allPatients = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <div class="patients-view">
