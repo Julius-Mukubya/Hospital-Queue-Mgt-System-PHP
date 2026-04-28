@@ -35,7 +35,7 @@ try {
         contact VARCHAR(20) NOT NULL,
         symptoms TEXT NOT NULL,
         visit_type ENUM('walk-in', 'appointment') DEFAULT 'walk-in',
-        status ENUM('waiting', 'in-consultation', 'completed') DEFAULT 'waiting',
+        status ENUM('waiting', 'confirmed', 'in-consultation', 'completed', 'cancelled') DEFAULT 'waiting',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
     echo "Table 'patients' created successfully!<br>";

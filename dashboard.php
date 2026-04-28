@@ -8,7 +8,19 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $role = $_SESSION['role'];
-$page = $_GET['page'] ?? 'register';
+
+// Set default page based on role
+if (!isset($_GET['page'])) {
+    if ($role === 'receptionist') {
+        $page = 'register';
+    } elseif ($role === 'doctor') {
+        $page = 'consultations';
+    } elseif ($role === 'admin') {
+        $page = 'dashboard';
+    }
+} else {
+    $page = $_GET['page'];
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -20,8 +32,7 @@ $page = $_GET['page'] ?? 'register';
     <div class="header">
         <h1>Medical System</h1>
         <div class="user-info">
-            <span>Welcome, <?= htmlspecialchars($_SESSION['username']) ?> (<?= htmlspecialchars($role) ?>)</span>
-            <a href="logout.php">Logout</a>
+            <a href="#" onclick="showLogoutModal(); return false;">Logout</a>
         </div>
     </div>
     
@@ -31,32 +42,75 @@ $page = $_GET['page'] ?? 'register';
                 <?php if ($role === 'receptionist'): ?>
                     <a href="?page=register" class="menu-item <?= $page === 'register' ? 'active' : '' ?>">Register Patient</a>
                     <a href="?page=patients" class="menu-item <?= $page === 'patients' ? 'active' : '' ?>">View Patients</a>
+                    <a href="?page=profile" class="menu-item <?= $page === 'profile' ? 'active' : '' ?>">Profile</a>
                 <?php elseif ($role === 'doctor'): ?>
                     <a href="?page=consultations" class="menu-item <?= $page === 'consultations' ? 'active' : '' ?>">Consultations</a>
                     <a href="?page=patients" class="menu-item <?= $page === 'patients' ? 'active' : '' ?>">Patient List</a>
+                    <a href="?page=profile" class="menu-item <?= $page === 'profile' ? 'active' : '' ?>">Profile</a>
                 <?php elseif ($role === 'admin'): ?>
                     <a href="?page=dashboard" class="menu-item <?= $page === 'dashboard' ? 'active' : '' ?>">Dashboard</a>
                     <a href="?page=users" class="menu-item <?= $page === 'users' ? 'active' : '' ?>">Manage Users</a>
                     <a href="?page=reports" class="menu-item <?= $page === 'reports' ? 'active' : '' ?>">Reports</a>
+                    <a href="?page=profile" class="menu-item <?= $page === 'profile' ? 'active' : '' ?>">Profile</a>
                 <?php endif; ?>
             </div>
         </div>
         
         <div class="main-content">
-            <?php if ($role === 'receptionist'): ?>
+            <?php if ($page === 'profile'): ?>
+                <?php include 'profile.php'; ?>
+            <?php elseif ($role === 'receptionist'): ?>
                 <?php if ($page === 'register'): ?>
                     <?php include 'receptionist_dashboard.php'; ?>
                 <?php elseif ($page === 'patients'): ?>
                     <?php include 'view_patients.php'; ?>
                 <?php endif; ?>
             <?php elseif ($role === 'doctor'): ?>
-                <h2>Doctor Dashboard</h2>
-                <p>Doctor features coming soon...</p>
+                <?php if ($page === 'consultations'): ?>
+                    <?php include 'doctor_dashboard.php'; ?>
+                <?php elseif ($page === 'patients'): ?>
+                    <?php include 'doctor_patients.php'; ?>
+                <?php endif; ?>
             <?php elseif ($role === 'admin'): ?>
-                <h2>Admin Dashboard</h2>
-                <p>Admin features coming soon...</p>
+                <?php if ($page === 'dashboard'): ?>
+                    <?php include 'admin_dashboard.php'; ?>
+                <?php elseif ($page === 'users'): ?>
+                    <?php include 'admin_users.php'; ?>
+                <?php elseif ($page === 'reports'): ?>
+                    <?php include 'admin_reports.php'; ?>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
+    
+    <!-- Logout Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to logout?</p>
+            <div class="modal-buttons">
+                <button onclick="hideLogoutModal()" class="btn-cancel-modal">Cancel</button>
+                <a href="logout.php" class="btn-logout-modal">Logout</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+        
+        function hideLogoutModal() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('logoutModal');
+            if (event.target == modal) {
+                hideLogoutModal();
+            }
+        }
+    </script>
 </body>
 </html>

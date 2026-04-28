@@ -1,4 +1,24 @@
 <?php
+// Handle confirm action
+if (isset($_GET['confirm'])) {
+    $patientId = $_GET['confirm'];
+    $stmt = $pdo->prepare("UPDATE patients SET status = 'confirmed' WHERE id = ?");
+    $stmt->execute([$patientId]);
+    
+    header('Location: ?page=patients&filter=' . ($_GET['filter'] ?? 'all'));
+    exit;
+}
+
+// Handle cancel action
+if (isset($_GET['cancel'])) {
+    $patientId = $_GET['cancel'];
+    $stmt = $pdo->prepare("UPDATE patients SET status = 'cancelled' WHERE id = ?");
+    $stmt->execute([$patientId]);
+    
+    header('Location: ?page=patients&filter=' . ($_GET['filter'] ?? 'all'));
+    exit;
+}
+
 // Fetch all patients
 $filter = $_GET['filter'] ?? 'all';
 
@@ -30,12 +50,20 @@ $patients = $stmt->fetchAll();
             <p>Waiting</p>
         </div>
         <div class="stat-card">
+            <h3><?= count(array_filter($patients, fn($p) => $p['status'] === 'confirmed')) ?></h3>
+            <p>Confirmed</p>
+        </div>
+        <div class="stat-card">
             <h3><?= count(array_filter($patients, fn($p) => $p['status'] === 'in-consultation')) ?></h3>
             <p>In Consultation</p>
         </div>
         <div class="stat-card">
             <h3><?= count(array_filter($patients, fn($p) => $p['status'] === 'completed')) ?></h3>
             <p>Completed</p>
+        </div>
+        <div class="stat-card">
+            <h3><?= count(array_filter($patients, fn($p) => $p['status'] === 'cancelled')) ?></h3>
+            <p>Cancelled</p>
         </div>
     </div>
     
@@ -50,12 +78,13 @@ $patients = $stmt->fetchAll();
                 <th>Symptoms</th>
                 <th>Status</th>
                 <th>Date & Time</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <?php if (empty($patients)): ?>
                 <tr>
-                    <td colspan="8" style="text-align: center; padding: 30px;">No patients found</td>
+                    <td colspan="9" style="text-align: center; padding: 30px;">No patients found</td>
                 </tr>
             <?php else: ?>
                 <?php foreach ($patients as $patient): ?>
@@ -72,6 +101,15 @@ $patients = $stmt->fetchAll();
                         </span>
                     </td>
                     <td><?= date('M d, Y h:i A', strtotime($patient['created_at'])) ?></td>
+                    <td>
+                        <?php if ($patient['status'] === 'waiting'): ?>
+                            <a href="?page=patients&filter=<?= $filter ?>&confirm=<?= $patient['id'] ?>" 
+                               class="btn-confirm">Confirm</a>
+                            <a href="?page=patients&filter=<?= $filter ?>&cancel=<?= $patient['id'] ?>" 
+                               class="btn-cancel" 
+                               onclick="return confirm('Cancel this patient visit?')">Cancel</a>
+                        <?php endif; ?>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
